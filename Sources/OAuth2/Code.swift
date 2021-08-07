@@ -19,17 +19,19 @@ class Code {
   var error: String?
   
   init(urlComponents: URLComponents) {
-    for queryItem in urlComponents.queryItems! {
-      if let value = queryItem.value {
-        switch queryItem.name {
-        case "code":
-          code = value
-        case "state":
-          state = value
-        case "error":
-          error = value
-        default:
-          break
+  if let items = urlComponents.queryItems {
+    for queryItem in items {
+        if let value = queryItem.value {
+          switch queryItem.name {
+          case "code":
+            code = value
+          case "state":
+            state = value
+          case "error":
+            error = value
+          default:
+            break
+          }
         }
       }
     }

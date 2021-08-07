@@ -20,19 +20,40 @@ import Foundation
 import NIOHTTP1
 import TinyHTTPServer
 
-struct Credentials: Codable {
+struct InstalledCredentials: Codable {
   let clientID: String
   let clientSecret: String
   let authorizeURL: String
   let accessTokenURL: String
-  let callback: String
+  
   enum CodingKeys: String, CodingKey {
     case clientID = "client_id"
     case clientSecret = "client_secret"
-    case authorizeURL = "authorize_url"
-    case accessTokenURL = "access_token_url"
-    case callback
+    case authorizeURL = "auth_uri"
+    case accessTokenURL = "token_uri"
   }
+}
+
+struct Credentials: Codable {
+    let clientID: String
+    let clientSecret: String
+    let authorizeURL: String
+    let accessTokenURL: String
+    let callback: String = ""
+
+    enum IntermediateCodingKeys: String, CodingKey {
+        case installed
+    }
+
+    public init(from decoder: Decoder) throws {
+      let values = try decoder.container(keyedBy: IntermediateCodingKeys.self)
+      let properties = try values.decode(InstalledCredentials.self, forKey: .installed)
+
+      clientID = properties.clientID
+      clientSecret = properties.clientSecret
+      authorizeURL = properties.authorizeURL
+      accessTokenURL = properties.accessTokenURL
+    }
 }
 
 public class BrowserTokenProvider: TokenProvider {
@@ -43,8 +64,7 @@ public class BrowserTokenProvider: TokenProvider {
   private var sem: DispatchSemaphore?
 
   public init?(credentials: String, token tokenfile: String) {
-    let path = ProcessInfo.processInfo.environment["HOME"]!
-      + "/.credentials/" + credentials
+    let path = credentials // ProcessInfo.processInfo.environment["HOME"]! + "/.credentials/" + credentials
     let url = URL(fileURLWithPath: path)
 
     guard let credentialsData = try? Data(contentsOf: url) else {
@@ -52,8 +72,7 @@ public class BrowserTokenProvider: TokenProvider {
       return nil
     }
     let decoder = JSONDecoder()
-    guard let credentials = try? decoder.decode(Credentials.self,
-                                                from: credentialsData)
+    guard let credentials = try? decoder.decode(Credentials.self, from: credentialsData)
     else {
       print("Error reading credentials")
       return nil
@@ -173,7 +192,13 @@ public class BrowserTokenProvider: TokenProvider {
       URLQueryItem(name: "scope", value: scope),
       URLQueryItem(name: "show_dialog", value: "false"),
     ]
-    openURL(urlComponents.url!)
+
+    #if os(Linux)
+      // Can't open the url automatically, throws exception 'Foundation/Process.swift:286: Fatal error: must provide a launch path'
+      print("It's time to refresh the authentication token, please open the following url: \(urlComponents.url!)")
+    #else
+      openURL(urlComponents.url!)
+    #endif
     _ = sem.wait(timeout: DispatchTime.distantFuture)
     token = try exchange()
   }
