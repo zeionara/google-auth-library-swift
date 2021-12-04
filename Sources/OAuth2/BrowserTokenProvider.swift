@@ -175,8 +175,10 @@ public class BrowserTokenProvider: TokenProvider {
     }
   }
 
+  public typealias SignInCallback = (_ url: URL?) -> Void
+
   @available(iOS 10.0, tvOS 10.0, *)
-  public func signIn(scopes: [String]) throws {
+  public func signIn(scopes: [String], callback: SignInCallback? = nil) throws {
     let sem = DispatchSemaphore(value: 0)
     try startServer(sem: sem)
 
@@ -194,6 +196,9 @@ public class BrowserTokenProvider: TokenProvider {
     ]
 
     #if os(Linux)
+      if let unwrappedCallback = callback {
+          unwrappedCallback(urlComponents.url)
+      }
       // Can't open the url automatically, throws exception 'Foundation/Process.swift:286: Fatal error: must provide a launch path'
       print("It's time to refresh the authentication token, please open the following url: \(urlComponents.url!)")
     #else
