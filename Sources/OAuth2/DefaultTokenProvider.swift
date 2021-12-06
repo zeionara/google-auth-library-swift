@@ -38,8 +38,8 @@ public class DefaultTokenProvider : TokenProvider {
     if let home = ProcessInfo.processInfo.environment["HOME"] {
       let credentialsPath = home + "/.config/gcloud/application_default_credentials.json"
       if FileManager.default.fileExists(atPath:credentialsPath) {
-        let credentialsURL = URL(fileURLWithPath:credentialsPath)
-        guard let provider = GoogleRefreshTokenProvider(credentialsURL:credentialsURL) else {
+        // let credentialsURL = URL(fileURLWithPath:credentialsPath)
+        guard let provider = GoogleRefreshTokenProvider(credentials: credentialsPath) else {
           return nil
         }
         tokenProvider = provider

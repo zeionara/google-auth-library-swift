@@ -20,6 +20,9 @@ public struct Token : Codable {
   public var RefreshToken : String?
   public var Scope : String?
   public var CreationTime : Date?
+
+  private var ClientID: String?
+  private var ClientSecret: String?
   enum CodingKeys: String, CodingKey {
     case AccessToken = "access_token"
     case TokenType = "token_type"
@@ -27,6 +30,9 @@ public struct Token : Codable {
     case RefreshToken = "refresh_token"
     case Scope = "scope"
     case CreationTime = "creation_time"
+
+    case ClientID = "client_id"
+    case ClientSecret = "client_secret"
   }
   
   func save(_ filename: String) throws {
@@ -39,8 +45,12 @@ public struct Token : Codable {
     self.AccessToken = accessToken
   }
   
-  public init(urlComponents: URLComponents) {
+  public init(urlComponents: URLComponents, clientId: String? = nil, clientSecret: String? = nil) {
     CreationTime = Date()
+
+    ClientID = clientId
+    ClientSecret = clientSecret
+
     for queryItem in urlComponents.queryItems! {
       if let value = queryItem.value {
         switch queryItem.name {

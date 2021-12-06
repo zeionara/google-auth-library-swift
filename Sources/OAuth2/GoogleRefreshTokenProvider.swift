@@ -34,14 +34,15 @@ public class GoogleRefreshTokenProvider: TokenProvider {
   private var credentials : OAuth2RefreshCredentials
   public var token: Token?
 
-  public init?(credentialsURL: URL) {
-    guard let credentialsData = try? Data(contentsOf:credentialsURL) else {
+  public init?(credentials: String) {
+    guard let credentialsData = try? Data(contentsOf: URL(fileURLWithPath: credentials)) else {
       return nil
     }
     let decoder = JSONDecoder()
     guard let credentials = try? decoder.decode(OAuth2RefreshCredentials.self,
                                                 from: credentialsData)
       else {
+        print("Cannot decode credentials: \(String(decoding: credentialsData, as: UTF8.self))")
         return nil
     }
     self.credentials = credentials
