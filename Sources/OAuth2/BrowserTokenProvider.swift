@@ -162,22 +162,22 @@ public class BrowserTokenProvider: TokenProvider {
     }
     _ = sem.wait(timeout: DispatchTime.distantFuture)
 
-    print("Exchanging token...")
+    // print("Exchanging token...")
 
     if let contentType = contentType, contentType.contains("application/json") {
       let decoder = JSONDecoder()
 
-      print("Client id = \(credentials.clientID)")
+      // print("Client id = \(credentials.clientID)")
         
       decoder.userInfo[CodingUserInfoKey.clientId] = credentials.clientID
 
-      print("Client id in user info = \(decoder.userInfo[CodingUserInfoKey.clientId])")
+      // print("Client id in user info = \(decoder.userInfo[CodingUserInfoKey.clientId])")
 
       decoder.userInfo[CodingUserInfoKey.clientSecret] = credentials.clientSecret
 
       let token = try! decoder.decode(Token.self, from: responseData!)
-      print("Token: ")
-      print(token)
+      // print("Token: ")
+      // print(token)
       
       return token
     } else { // assume "application/x-www-form-urlencoded"
@@ -231,3 +231,4 @@ public class BrowserTokenProvider: TokenProvider {
     callback(token, nil)
   }
 }
+
