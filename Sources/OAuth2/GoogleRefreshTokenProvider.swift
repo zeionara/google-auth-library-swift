@@ -56,6 +56,16 @@ public class GoogleRefreshTokenProvider: TokenProvider {
     }
   }
 
+  public func signIn() throws {
+      self.token = try exchange()
+  }
+
+  public func saveToken(_ filename: String) throws {
+    if let token = token {
+      try token.save(filename)
+    }
+  }
+
   private func exchange() throws -> Token? {
     let parameters = [
       "client_id": credentials.clientID,
