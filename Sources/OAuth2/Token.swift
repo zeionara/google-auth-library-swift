@@ -13,6 +13,11 @@
 // limitations under the License.
 import Foundation
 
+extension CodingUserInfoKey {
+    static let clientId = CodingUserInfoKey(rawValue: "client_id")!
+    static let clientSecret = CodingUserInfoKey(rawValue: "client_secret")!
+}
+
 public struct Token : Codable {
   public var AccessToken : String?
   public var TokenType : String?
@@ -23,6 +28,7 @@ public struct Token : Codable {
 
   private var ClientID: String?
   private var ClientSecret: String?
+
   enum CodingKeys: String, CodingKey {
     case AccessToken = "access_token"
     case TokenType = "token_type"
@@ -70,4 +76,21 @@ public struct Token : Codable {
       }
     }
   }
+
+  public init(from decoder: Decoder) {
+      let values = try! decoder.container(keyedBy: CodingKeys.self)
+
+      AccessToken = try? values.decode(String.self, forKey: .AccessToken)
+      TokenType = try? values.decode(String.self, forKey: .TokenType)
+      ExpiresIn = try? values.decode(Int.self, forKey: .ExpiresIn)
+      RefreshToken = try? values.decode(String.self, forKey: .RefreshToken)
+      Scope = try? values.decode(String.self, forKey: .Scope)
+      CreationTime = try? values.decode(Date.self, forKey: .CreationTime)
+
+      // print("Userinfo inside init = \(decoder.userInfo)")
+
+      ClientID = decoder.userInfo[.clientId] as? String
+      ClientSecret = decoder.userInfo[.clientSecret] as? String
+  }
 }
+

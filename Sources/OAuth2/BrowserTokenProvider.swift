@@ -157,9 +157,24 @@ public class BrowserTokenProvider: TokenProvider {
       sem.signal()
     }
     _ = sem.wait(timeout: DispatchTime.distantFuture)
+
+    print("Exchanging token...")
+
     if let contentType = contentType, contentType.contains("application/json") {
       let decoder = JSONDecoder()
+
+      print("Client id = \(credentials.clientID)")
+        
+      decoder.userInfo[CodingUserInfoKey.clientId] = credentials.clientID
+
+      print("Client id in user info = \(decoder.userInfo[CodingUserInfoKey.clientId])")
+
+      decoder.userInfo[CodingUserInfoKey.clientSecret] = credentials.clientSecret
+
       let token = try! decoder.decode(Token.self, from: responseData!)
+      print("Token: ")
+      print(token)
+      
       return token
     } else { // assume "application/x-www-form-urlencoded"
       guard let responseData = responseData else {
@@ -171,7 +186,7 @@ public class BrowserTokenProvider: TokenProvider {
       guard let urlComponents = URLComponents(string: "http://example.com?" + queryParameters) else {
         throw AuthError.unknownError
       }
-      return Token(urlComponents: urlComponents)
+      return Token(urlComponents: urlComponents, clientId: credentials.clientID, clientSecret: credentials.clientSecret)
     }
   }
 

@@ -24,7 +24,7 @@ struct OAuth2RefreshCredentials : Codable {
     case clientID = "client_id"
     case clientSecret = "client_secret"
     case refreshToken = "refresh_token"
-    case tokenType = "type"
+    case tokenType = "token_type"
   }
 }
 
